@@ -1,36 +1,35 @@
-# puppet code to install & configure 'nginx'
-package { 'nginx':
-  ensure => installed,
+# puppet manifest creating a custom HTTP header response
+exec { 'apt-get-update':
+  command => '/usr/bin/apt-get update',
 }
 
-file { '/etc/nginx/sites-available/default':
-  content => "server {
-                listen 80 default_server;
-                listen [::]:80 default_server;
+package { 'nginx':
+  ensure  => installed,
+  require => Exec['apt-get-update'],
+}
 
-                root /var/www/html;
-                index index.html index.htm index.nginx-debian.html;
-
-                server_name _;
-
-                add_header X-Served-By $hostname;
-
-                location / {
-                        try_files $uri $uri/ =404;
-                }
-        }",
-  mode    => '0644',
+file_line { 'a':
+  ensure  => 'present',
+  path    => '/etc/nginx/sites-available/default',
+  after   => 'listen 80 default_server;',
+  line    => 'rewrite ^/redirect_me https://www.youtube.com/watch?v=QH2-TGUlwu4 permanent;',
   require => Package['nginx'],
 }
 
-file { '/etc/nginx/sites-enabled/default':
-  ensure => 'link',
-  target => '/etc/nginx/sites-available/default',
-  notify => Service['nginx'],
+file_line { 'b':
+  ensure  => 'present',
+  path    => '/etc/nginx/sites-available/default',
+  after   => 'listen 80 default_server;',
+  line    => 'add_header X-Served-By $hostname;',
+  require => Package['nginx'],
+}
+
+file { '/var/www/html/index.html':
+  content => 'Hello World!',
+  require => Package['nginx'],
 }
 
 service { 'nginx':
-  ensure     => 'running',
-  enable     => true,
-  subscribe  => File['/etc/nginx/sites-enabled/default'],
+  ensure  => running,
+  require => Package['nginx'],
 }
