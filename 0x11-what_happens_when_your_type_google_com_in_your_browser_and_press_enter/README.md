@@ -11,3 +11,6 @@
   * [1-what_happen_when_diagram](./1-what_happen_when_diagram): Text file
   containing the link to a diagram put together to visualize the networking
   process described in my blog.
+
+  **2. Contributuion to what happens when github**
+  * Answer git pull
