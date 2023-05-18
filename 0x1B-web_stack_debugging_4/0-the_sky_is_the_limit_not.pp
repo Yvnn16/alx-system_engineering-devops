@@ -1,13 +1,6 @@
-# Increases the amount of traffic an Nginx server can handle.
+# puppet code to increase amount of traffic an nginx server can handle
 
-# Increase the ULIMIT of the default file
-exec { 'fix--for-nginx':
-  command => 'sed -i "s/15/4096/" /etc/default/nginx',
-  path    => '/usr/local/bin/:/bin/'
-} ->
-
-# Restart Nginx
-exec { 'nginx-restart':
-  command => 'nginx restart',
-  path    => '/etc/init.d/'
+exec { 'replace_limit':
+  path    => '/usr/bin:/usr/sbin:/bin',
+  command => 'sed -i "/ULIMIT=/c\ULIMIT=\'-n 4096\'" /etc/default/nginx; service nginx restart',
 }
